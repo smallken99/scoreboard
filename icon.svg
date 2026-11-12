@@ -1,0 +1,28 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <defs>
+    <linearGradient id="gold" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FCD34D" />
+      <stop offset="50%" stop-color="#F59E0B" />
+      <stop offset="100%" stop-color="#D97706" />
+    </linearGradient>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#3B82F6" />
+      <stop offset="100%" stop-color="#1D4ED8" />
+    </linearGradient>
+  </defs>
+  <!-- 背景圓角矩形 -->
+  <rect width="512" height="512" rx="128" fill="url(#bg)" />
+  <!-- 獎盃杯身主體 -->
+  <path d="M160 128h192v96c0 53.02-42.98 96-96 96s-96-42.98-96-96v-96z" fill="url(#gold)" />
+  <!-- 獎盃耳朵（左） -->
+  <path d="M160 160H112c-17.67 0-32 14.33-32 32v16c0 35.35 28.65 64 64 64h16v-32h-16c-17.67 0-32-14.33-32-32v-16h48v-32z" fill="url(#gold)" />
+  <!-- 獎盃耳朵（右） -->
+  <path d="M352 160h48c17.67 0 32 14.33 32 32v16c0 35.35-28.65 64-64 64h-16v-32h16c17.67 0 32-14.33 32-32v-16h-48v-32z" fill="url(#gold)" />
+  <!-- 獎盃立柱 -->
+  <path d="M236 320h40v48h-40z" fill="url(#gold)" />
+  <!-- 底座 -->
+  <path d="M192 368h128l16 48H176l16-48z" fill="#FBBF24" />
+  <!-- 閃光星星 -->
+  <polygon points="256,160 264,184 288,184 268,198 276,222 256,206 236,222 244,198 224,184 248,184" fill="#FFFFFF" opacity="0.9" />
+</svg>
+

@@ -1,0 +1,18 @@
+{
+  "name": "榮譽計分板",
+  "short_name": "計分板",
+  "description": "雙分頁家庭榮譽計分板",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#f1f5f9",
+  "theme_color": "#2563eb",
+  "icons": [
+    {
+      "src": "icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
+
