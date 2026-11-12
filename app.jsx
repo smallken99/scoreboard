@@ -60,6 +60,9 @@ function App() {
   // 手動輸入分數暫存
   const [manualInputVal, setManualInputVal] = useState('');
 
+  // 事蹟原因暫存（選填）
+  const [actionReason, setActionReason] = useState('');
+
   // 動態飄字動畫佇列
   const [floatingParticles, setFloatingParticles] = useState([]);
 
@@ -128,9 +131,12 @@ function App() {
     }, 850);
   };
 
-  // 加減分核心函式
-  const adjustScore = useCallback((delta) => {
+  // 加減分核心函式 (支援選填事蹟原因)
+  const adjustScore = useCallback((delta, customReason = null) => {
     if (!delta || isNaN(delta)) return;
+
+    // 若有自訂或傳入的事由，優先使用，否則使用目前輸入框的 actionReason
+    const reasonToSave = (customReason !== null ? customReason : actionReason).trim();
 
     setData(prev => {
       const activeUser = prev[currentKey];
@@ -141,6 +147,7 @@ function App() {
         id: 'log_' + Date.now() + '_' + Math.random().toString(36).substring(2, 6),
         timestamp: new Date().toISOString(),
         delta: delta,
+        reason: reasonToSave,
         prevScore: prevScore,
         currentScore: newScore
       };
@@ -155,8 +162,10 @@ function App() {
       };
     });
 
+    // 完成後清空事蹟原因輸入框
+    setActionReason('');
     triggerThemeAnimation(delta);
-  }, [currentKey]);
+  }, [currentKey, actionReason]);
 
   // 手動加分
   const handleManualAdd = () => {
@@ -188,7 +197,8 @@ function App() {
     }
 
     const lastEntry = currentUser.history[0];
-    const confirmUndo = confirm(`確定要撤銷最近這筆 ${lastEntry.delta > 0 ? '+' : ''}${lastEntry.delta} 分的更動嗎？\n分數將回調至 ${lastEntry.prevScore} 分。`);
+    const reasonInfo = lastEntry.reason ? `【${lastEntry.reason}】` : '';
+    const confirmUndo = confirm(`確定要撤銷最近這筆 ${lastEntry.delta > 0 ? '+' : ''}${lastEntry.delta} 分 ${reasonInfo}的更動嗎？\n分數將回調至 ${lastEntry.prevScore} 分。`);
     if (!confirmUndo) return;
 
     setData(prev => {
@@ -212,7 +222,8 @@ function App() {
     const target = currentUser.history.find(h => h.id === logId);
     if (!target) return;
 
-    const confirmDel = confirm(`確定要刪除這筆紀錄（${target.delta > 0 ? '+' : ''}${target.delta} 分）嗎？\n分數將會自動相應扣除/補回。`);
+    const reasonInfo = target.reason ? `【${target.reason}】` : '';
+    const confirmDel = confirm(`確定要刪除這筆紀錄（${target.delta > 0 ? '+' : ''}${target.delta} 分 ${reasonInfo}）嗎？\n分數將會自動相應扣除/補回。`);
     if (!confirmDel) return;
 
     setData(prev => {
@@ -477,6 +488,33 @@ function App() {
         </div>
       </section>
 
+      {/* 事蹟原因欄位 (非必要欄位，留空亦可直接計分) */}
+      <section className="bg-white rounded-2xl p-4 shadow-sm border border-slate-200 mb-4">
+        <div className="flex items-center justify-between mb-2">
+          <div className="flex items-center space-x-1.5">
+            <span className="text-sm">📝</span>
+            <label className="text-xs font-extrabold text-slate-700">事蹟原因（選填）</label>
+            <span className="text-[10px] text-slate-400 font-normal">留空亦可直接加減分</span>
+          </div>
+          {actionReason && (
+            <button
+              onClick={() => setActionReason('')}
+              className="text-[11px] text-slate-400 hover:text-slate-600 font-semibold"
+            >
+              清除
+            </button>
+          )}
+        </div>
+        <input
+          type="text"
+          value={actionReason}
+          onChange={(e) => setActionReason(e.target.value)}
+          placeholder="例如：主動收碗盤、練琴非常認真、吵架打鬧..."
+          maxLength={50}
+          className="w-full px-3 py-2 text-xs sm:text-sm bg-slate-50 border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 text-slate-800 placeholder-slate-400"
+        />
+      </section>
+
       {/* 罐頭分數快捷鍵 (符合個人主題色系之加減分按鈕) */}
       <section className="bg-white rounded-2xl p-4 shadow-sm border border-slate-200 mb-4">
         <h2 className="text-xs font-extrabold text-slate-400 uppercase tracking-wider mb-2.5">
@@ -581,12 +619,21 @@ function App() {
                 key={entry.id}
                 className="flex items-center justify-between py-2 px-3 rounded-lg bg-slate-50 border border-slate-100 text-xs"
               >
-                <div className="flex items-center space-x-2 text-slate-500">
-                  <span className="text-slate-400">{formatTime(entry.timestamp)}</span>
-                  <span>•</span>
-                  <span>{entry.prevScore} ➔ {entry.currentScore}</span>
+                <div className="flex flex-col truncate pr-2">
+                  {/* 若有事蹟原因則優先醒目顯示 */}
+                  {entry.reason && (
+                    <div className="text-xs font-bold text-slate-800 truncate mb-0.5 flex items-center space-x-1">
+                      <span className="text-[10px] px-1.5 py-0.5 rounded bg-slate-200/80 text-slate-600 font-medium">事由</span>
+                      <span className="truncate">{entry.reason}</span>
+                    </div>
+                  )}
+                  <div className="flex items-center space-x-2 text-slate-500 text-[11px]">
+                    <span className="text-slate-400">{formatTime(entry.timestamp)}</span>
+                    <span>•</span>
+                    <span>{entry.prevScore} ➔ {entry.currentScore}</span>
+                  </div>
                 </div>
-                <div className="flex items-center space-x-2">
+                <div className="flex items-center space-x-2 flex-shrink-0">
                   <span className={`font-black px-2 py-0.5 rounded ${
                     entry.delta > 0
                       ? (isUser1 ? 'text-sky-800 bg-sky-100' : 'text-rose-800 bg-rose-100')
